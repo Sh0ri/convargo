@@ -172,18 +172,15 @@ decreases by 50% after 25 m3
 */
 
 //STEP 2
-function SetDeliveryPrice(delivery)
+function SetDeliveryPrice(delivery,additionnal_charge)
 {
   var trucker = truckers.find(x => x.id === delivery.truckerId);
   var pricePerKm = trucker.pricePerKm;
   var pricePerVolume = trucker.pricePerVolume;
+  pricePerVolume = DecreasePricePerMeter3(pricePerVolume,delivery);
 
-  if(delivery.options != null)
-  {
-    if(delivery.options.deductibleReduction != false)
-      pricePerVolume = DecreasePricePerMeter3(pricePerVolume,delivery);
-  }
-  var price = pricePerKm * delivery.distance + pricePerVolume * delivery.volume;
+  var price = pricePerKm * delivery.distance + pricePerVolume * delivery.volume + additionnal_charge;
+  console.log("additionnal_charge : " + additionnal_charge);
   console.log("Price : " + price);
   return price;
 }
@@ -219,9 +216,9 @@ function SetTreasury(distance)
 
   return numberof500;
 }
-function SetComission(delivery)
+function SetComission(delivery,additionnal_charge)
 {
-  var totalcomission = delivery.price*0.3;
+  var totalcomission = (delivery.price-additionnal_charge)*0.3;
 
   console.log("Total Comission : " + totalcomission);
 
@@ -231,7 +228,7 @@ function SetComission(delivery)
   delivery.commission.treasury = SetTreasury(delivery.distance);
   totalcomission -= delivery.commission.treasury;
 
-  delivery.commission.convargo = totalcomission;
+  delivery.commission.convargo = totalcomission+additionnal_charge;
 
   console.log("Insurance : " + delivery.commission.insurance);
   console.log("Treasury : " + delivery.commission.treasury);
@@ -241,9 +238,17 @@ function SetComission(delivery)
 
 deliveries.forEach(function(delivery){
 
-  delivery.price = SetDeliveryPrice(delivery);
+  var additionnal_charge = 0;
+  if(delivery.options.deductibleReduction == true)
+  {
+    additionnal_charge = delivery.volume;
+  }
 
-  SetComission(delivery);
+  delivery.price = SetDeliveryPrice(delivery,additionnal_charge);
+
+  SetComission(delivery,additionnal_charge);
+
+
 
   console.log(delivery);
 });
