@@ -213,9 +213,37 @@ function DecreasePricePerMeter3(pricePerVolume,delivery)
   return new_pricePerVolume;
 }
 
+function SetTreasury(distance)
+{
+  var numberof500 = Math.trunc(distance/500) + 1;
+
+  return numberof500;
+}
+function SetComission(delivery)
+{
+  var totalcomission = delivery.price*0.3;
+
+  console.log("Total Comission : " + totalcomission);
+
+  delivery.commission.insurance = totalcomission*0.5;
+  totalcomission -= delivery.commission.insurance;
+
+  delivery.commission.treasury = SetTreasury(delivery.distance);
+  totalcomission -= delivery.commission.treasury;
+
+  delivery.commission.convargo = totalcomission;
+
+  console.log("Insurance : " + delivery.commission.insurance);
+  console.log("Treasury : " + delivery.commission.treasury);
+  console.log("Convargo : " + delivery.commission.convargo);
+
+}
+
 deliveries.forEach(function(delivery){
 
   delivery.price = SetDeliveryPrice(delivery);
+
+  SetComission(delivery);
 
   console.log(delivery);
 });
