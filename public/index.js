@@ -148,3 +148,39 @@ const actors = [{
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
+
+/*
+{
+  'id': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
+  'shipper': 'otacos',
+  'truckerId': '6e06c9c0-4ab0-4d66-8325-c5fa60187cf8',
+  'distance': 1250,
+  'volume': 30,
+  'options': {
+    'deductibleReduction': true
+  },
+  'price': 0,
+  'commission': {
+    'insurance': 0,
+    'treasury': 0,
+    'convargo': 0
+  }
+
+decreases by 10% after 5 m3
+decreases by 30% after 10 m3
+decreases by 50% after 25 m3
+*/
+
+//STEP 1
+function SetDeliveryPrice(delivery)
+{
+  var price = (truckers.find(x => x.id === delivery.truckerId).pricePerKm * delivery.distance) + (truckers.find(x => x.id === delivery.truckerId).pricePerVolume * delivery.volume);
+  return price;
+}
+deliveries.forEach(function(delivery){
+
+  delivery.price = SetDeliveryPrice(delivery);
+  console.log(delivery);
+});
+
+
