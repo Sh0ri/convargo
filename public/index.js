@@ -171,15 +171,52 @@ decreases by 30% after 10 m3
 decreases by 50% after 25 m3
 */
 
-//STEP 1
+//STEP 2
 function SetDeliveryPrice(delivery)
 {
-  var price = (truckers.find(x => x.id === delivery.truckerId).pricePerKm * delivery.distance) + (truckers.find(x => x.id === delivery.truckerId).pricePerVolume * delivery.volume);
+  var trucker = truckers.find(x => x.id === delivery.truckerId);
+  var pricePerKm = trucker.pricePerKm;
+  var pricePerVolume = trucker.pricePerVolume;
+
+  if(delivery.options != null)
+  {
+    if(delivery.options.deductibleReduction != false)
+      pricePerVolume = DecreasePricePerMeter3(pricePerVolume,delivery);
+  }
+  var price = pricePerKm * delivery.distance + pricePerVolume * delivery.volume;
+  console.log("Price : " + price);
   return price;
 }
+
+function DecreasePricePerMeter3(pricePerVolume,delivery)
+{
+  var volume = delivery.volume;
+  var decreasePercent = "0";
+  var new_pricePerVolume = pricePerVolume;
+  if(volume > 5 && volume <= 10)
+  {
+    new_pricePerVolume = new_pricePerVolume-(0.10*new_pricePerVolume);
+    decreasePercent = "10";
+  }
+  if(volume > 10 && volume <= 25)
+  {
+    new_pricePerVolume = new_pricePerVolume-(0.30*new_pricePerVolume);
+    decreasePercent = "30";
+  }
+  if(volume > 25)
+  {
+    new_pricePerVolume = new_pricePerVolume-(0.50*new_pricePerVolume);
+    decreasePercent = "50";
+  }
+  console.log("PricePerVolume with reduction : " + new_pricePerVolume);
+  console.log("decreasePercent : " + decreasePercent);
+  return new_pricePerVolume;
+}
+
 deliveries.forEach(function(delivery){
 
   delivery.price = SetDeliveryPrice(delivery);
+
   console.log(delivery);
 });
 
