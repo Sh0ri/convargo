@@ -145,30 +145,10 @@ const actors = [{
   }]
 }];
 
+/*
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
-
-/*
-{
-  'id': '94dab739-bd93-44c0-9be1-52dd07baa9f6',
-  'shipper': 'otacos',
-  'truckerId': '6e06c9c0-4ab0-4d66-8325-c5fa60187cf8',
-  'distance': 1250,
-  'volume': 30,
-  'options': {
-    'deductibleReduction': true
-  },
-  'price': 0,
-  'commission': {
-    'insurance': 0,
-    'treasury': 0,
-    'convargo': 0
-  }
-
-decreases by 10% after 5 m3
-decreases by 30% after 10 m3
-decreases by 50% after 25 m3
 */
 
 //STEP 2
@@ -236,6 +216,17 @@ function SetComission(delivery,additionnal_charge)
 
 }
 
+function PayActor(delivery)
+{
+  var actor = actors.find(x=>x.deliveryId == delivery.id);
+
+  actor.payment.find(y=>y.who == 'shipper').amount = delivery.price;
+  actor.payment.find(y=>y.who == 'trucker').amount = delivery.price - (delivery.commission.insurance + delivery.commission.treasury + delivery.commission.convargo);
+  actor.payment.find(y=>y.who == 'treasury').amount = delivery.commission.treasury;
+  actor.payment.find(y=>y.who == 'insurance').amount = delivery.commission.insurance;
+  actor.payment.find(y=>y.who == 'convargo').amount = delivery.commission.convargo;
+}
+
 deliveries.forEach(function(delivery){
 
   var additionnal_charge = 0;
@@ -247,10 +238,11 @@ deliveries.forEach(function(delivery){
   delivery.price = SetDeliveryPrice(delivery,additionnal_charge);
 
   SetComission(delivery,additionnal_charge);
-
-
-
-  console.log(delivery);
+  PayActor(delivery);
 });
+
+actors.forEach(function(actor){
+  console.log(actor);
+})
 
 
